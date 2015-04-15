@@ -11,7 +11,7 @@ def search_movie(driver, movie_name):
     @param : driver -> selenium driver
              movie_name -> name of movie to search
     @return : two strings : movie_url -> url of imdb page of movie_name
-                            movie_business_url -> url of business page of movie_name
+                            movie_business_url -> url of imdb business page of movie_name
     '''
     search_url = "http://www.imdb.com/search/"
     imdb_url = "http://www.imdb.com"
