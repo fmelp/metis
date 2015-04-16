@@ -23,7 +23,6 @@ def get_movie_value(soup, field_name):
     else:
         return None
 
-
 def get_movie_roles_list(soup, role):
     try:
         obj = soup.find(text=re.compile(role))
