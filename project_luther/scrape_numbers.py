@@ -2,15 +2,20 @@ from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 import re
 
-uastring = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1944.0 Safari/537.36'
+print 'a'
 
 
-def search_movie_numbers(driver, movie_name):
+def search_movie_numbers(movie_name):
     '''
-    @param : driver -> selenium driver
-             movie_name -> name of movie to search
+    @param : movie_name -> name of movie to search
     @return : movie_url -> url of the_numbers movie page
     '''
+    uastring = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1944.0 Safari/537.36'
+    dcap = webdriver.DesiredCapabilities.PHANTOMJS
+    dcap["phantomjs.page.settings.userAgent"] = uastring
+    exec_path = '/usr/local/bin/phantomjs'
+    driver = webdriver.PhantomJS(exec_path)
+    driver.set_window_size(1024, 768)
     url = "http://www.the-numbers.com/search?searchterm="
     movie_name = movie_name.replace(" ", "+")
     url = url + movie_name
@@ -37,6 +42,7 @@ def get_video_sales(url):
             video_sales = None
     return video_sales
 
+
 def get_rt_ratings(url):
     '''
     @param : url -> the_numbers url for the given movie
@@ -46,11 +52,8 @@ def get_rt_ratings(url):
     try:
         driver.get(url)
         soup = bs(driver.page_source)
-        rt_critics = str(soup.find(text=re.compile("Certified Fresh")))
+        rt_critics = str(soup.find(text=re.compile("Certified Fresh|Fresh|")))
         rt_critics = rt_critics.partition("%")[0]
-        if len(rt_critics) != 2:
-            rt_critics = str(soup.find(text=re.compile("Fresh")))
-            rt_critics = rt_critics.partition("%")[0]
         rt_audience = str(soup.find(text=re.compile("Upright")))
         rt_audience = rt_audience.partition("%")[0]
     except:
@@ -58,15 +61,7 @@ def get_rt_ratings(url):
     return rt_critics, rt_audience
 
 
-
-
-
 if __name__ == '__main__':
-    dcap = webdriver.DesiredCapabilities.PHANTOMJS
-    dcap["phantomjs.page.settings.userAgent"] = uastring
-    exec_path = '/usr/local/bin/phantomjs'
-    driver = webdriver.PhantomJS(exec_path)
-    driver.set_window_size(1024, 768)
-    url = search_movie_numbers(driver, "The Unbearable Lightness of Being")
+    url = search_movie_numbers("avatar")
     print get_video_sales(url)
     print get_rt_ratings(url)

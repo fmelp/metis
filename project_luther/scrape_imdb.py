@@ -89,5 +89,5 @@ if __name__ == '__main__':
     exec_path = '/usr/local/bin/phantomjs'
     driver = webdriver.PhantomJS(exec_path)
     driver.set_window_size(1024, 768)
-    soup = search_movie(driver, "Return of the Living Dead 2")
+    soup = search_movie(driver, "Return of the Jedi")
     print get_ratings(soup)

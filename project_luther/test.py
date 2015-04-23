@@ -1,0 +1,1 @@
+with open("bom_data_w_rt_ratings.csv" as )
