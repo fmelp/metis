@@ -2,13 +2,9 @@ from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 import re
 
-print 'a'
-
-
-def search_movie_numbers(movie_name):
+def set_up_driver():
     '''
-    @param : movie_name -> name of movie to search
-    @return : movie_url -> url of the_numbers movie page
+    @return : a PhantomJS webdriver
     '''
     uastring = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1944.0 Safari/537.36'
     dcap = webdriver.DesiredCapabilities.PHANTOMJS
@@ -16,6 +12,15 @@ def search_movie_numbers(movie_name):
     exec_path = '/usr/local/bin/phantomjs'
     driver = webdriver.PhantomJS(exec_path)
     driver.set_window_size(1024, 768)
+    return driver
+
+
+def search_movie_numbers(movie_name):
+    '''
+    @param : movie_name -> name of movie to search
+    @return : movie_url -> url of the_numbers movie page
+    '''
+    driver = set_up_driver()
     url = "http://www.the-numbers.com/search?searchterm="
     movie_name = movie_name.replace(" ", "+")
     url = url + movie_name
@@ -25,11 +30,13 @@ def search_movie_numbers(movie_name):
     driver.find_element_by_xpath(xpath).click()
     return str(driver.current_url)
 
+
 def get_video_sales(url):
     '''
     @param : url -> the_numbers url for the given movie
     @return : video_sales -> string of video sales
     '''
+    driver = set_up_driver()
     try:
         driver.get(url)
         xpath = '//*[@id="movie_finances"]/tbody/tr[8]/td[2]'
@@ -50,6 +57,7 @@ def get_rt_ratings(url):
               rt_audience -> string of rotten tomatoes audience rating
     '''
     try:
+        driver = set_up_driver()
         driver.get(url)
         soup = bs(driver.page_source)
         rt_critics = str(soup.find(text=re.compile("Certified Fresh|Fresh|")))
