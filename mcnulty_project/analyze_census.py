@@ -9,10 +9,11 @@ from sklearn.externals.six import StringIO
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.learning_curve import learning_curve
-from sklearn.cross_validation import cross_val_score
+
 from sklearn.metrics import precision_recall_fscore_support, roc_auc_score, roc_curve, auc
 from sklearn.linear_model import LogisticRegression
 from sklearn.grid_search import GridSearchCV
+from sklearn.svm import SVC
 
 # class Logger(object):
 #     def __init__(self, filename="Default.log"):
@@ -155,9 +156,9 @@ def get_best_model_params(clf, train_X, train_y, param_grid,
 
     return grid_search.best_estimator_, grid_search.grid_scores_
 
-dt_clf, dt_clf_scores = get_best_model_params(DecisionTreeClassifier(), train_X, train_y, param_grid, 'accuracy', 5)
+dt_clf, dt_clf_scores = get_best_model_params(DecisionTreeClassifier(), train_X, train_y, param_grid, 'recall', 5)
 
-print type(dt_clf)
+print dt_clf
 
 #learning curve -> to give you optimal trainset size
 
@@ -179,8 +180,11 @@ print type(dt_clf)
 
 # SVM
 
-print cross_val_score(dt_clf, census_data.drop([1, 3, 5, 6, 7, 8, 9, 13, 14], axis=1), census_data[14], cv=10, verbose=10, scoring='accuracy')
+print cross_val_score(dt_clf, census_data.drop([1, 3, 5, 6, 7, 8, 9, 13, 14], axis=1), census_data[14], cv=10, verbose=10, scoring='recall')
 
+#SVM:
+# svm_clf, svm_clf_scores = get_best_model_params(SVC(), train_X, train_y, param_grid, 'recall', 5)
+# print cross_val_score(svm_clf, census_data.drop([1, 3, 5, 6, 7, 8, 9, 13, 14], axis=1), census_data[14], cv=10, verbose=10, scoring='recall')
 
 create_graph(dt_clf, 'tree2.pdf')
 #plot_roc(test_y, dt_result_prob)
