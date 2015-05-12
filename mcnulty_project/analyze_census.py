@@ -7,9 +7,9 @@ import pydot
 import matplotlib.pyplot as plt
 from sklearn.externals.six import StringIO
 from sklearn.cross_validation import train_test_split
+from sklearn.cross_validation import cross_val_score
 from sklearn.metrics import accuracy_score
 from sklearn.learning_curve import learning_curve
-
 from sklearn.metrics import precision_recall_fscore_support, roc_auc_score, roc_curve, auc
 from sklearn.linear_model import LogisticRegression
 from sklearn.grid_search import GridSearchCV
@@ -111,7 +111,7 @@ test_y = test[14].astype('category')
 #     train_X, train_y, test_X, test_y)
 
 # dt_clf = DecisionTreeClassifier()
-param_grid = [{'max_depth' : [5, 3, 2, 13, 12, 20]}]
+
 # grid_search_dt = GridSearchCV(dt_clf, param_grid, scoring='accuracy', cv=5, verbose=10)
 # print grid_search_dt.best_params_
 # print grid_search_dt.best_estimator_
@@ -156,9 +156,16 @@ def get_best_model_params(clf, train_X, train_y, param_grid,
 
     return grid_search.best_estimator_, grid_search.grid_scores_
 
+param_grid = [{'max_depth' : [5, 3, 2, 13, 12, 20]}]
 dt_clf, dt_clf_scores = get_best_model_params(DecisionTreeClassifier(), train_X, train_y, param_grid, 'recall', 5)
 
 print dt_clf
+
+param_grid_svc = [{"C": [0.01, 0.1, 1], "kernel": ['rbf'], "gamma":[0.0, 0.01, 0.1, 1]}]
+svc_clf, svc_clf_scores = get_best_model_params(SVC(), train_X, train_y, param_grid_svc, 'recall', 3)
+
+print svc_clf
+print svc_clf_scores
 
 #learning curve -> to give you optimal trainset size
 

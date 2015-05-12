@@ -18,33 +18,31 @@ bd['CAP'] = bd['CAP'].dropna().apply(lambda x: re.sub("[^0-9]", "", x)).apply(la
 bd = bd[bd['CAP'] != np.nan]
 bd = bd[~(bd['CAP'].isnull())]
 
-print len(bd)
-
 
 # .state, .zip, .longitude, .latitude, .city
 zcdb = ZipCodeDatabase()
 # print zcdb[22060].longitude
 
 # uncomment below section to get list ready for us_map html viz
-city_number = {}
-print len(bd)
-for i, zc in enumerate(bd['CAP']):
-    print i
-    try:
-        city = zcdb[zc].city
-        state = zcdb[zc].state
-        key = str(city) + ', ' + str(state)
-    except:
-        print "--------------------------"
-        continue
-    if (key in city_number.keys()):
-        city_number[key] = city_number[key] + 1
-    else:
-        city_number[key] = 1
-for key in city_number:
-    print ("[ '" + str(key) + "', " + str(city_number[key]) + "],")
+# city_number = {}
+# print len(bd)
+# for i, zc in enumerate(bd['CAP']):
+#     print i
+#     try:
+#         city = zcdb[zc].city
+#         state = zcdb[zc].state
+#         key = str(city) + ', ' + str(state)
+#     except:
+#         print "--------------------------"
+#         continue
+#     if (key in city_number.keys()):
+#         city_number[key] = city_number[key] + 1
+#     else:
+#         city_number[key] = 1
+# for key in city_number:
+#     print ("[ '" + str(key) + "', " + str(city_number[key]) + "],")
 
-print len(city_number)
+# print len(city_number)
 
 # 430 valid zipcodes
 
@@ -54,7 +52,7 @@ zp1 = pd.read_csv("~/Desktop/metis/mcnulty_project/borgo_data/zip-income.csv")
 
 
 print len(zp)
-print len(zp1)
+print zp1.head()
 
 print set(zp1['state'].tolist())
 

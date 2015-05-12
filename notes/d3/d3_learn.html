@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>D3 Basics</title>
+
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+  </head>
+
+  <body>
+
+    <script>
+// this makes an upside down barchart
+// because the origin of page is top left corner
+
+// declare a dataset
+// start a colorscale function to be called later
+    var dataset = [4, 1, 2, 10, 50, 2, 13, 8];
+    var colorScale = d3.scale.category10();
+
+// //invert the canvas to that everything points the right way
+//     var width = 600;
+//         height = 600;
+
+// create svg canvas object -> created as a VARIABLE
+// because we call it multiple times
+    var svg = d3.select("body").append("svg")
+        .attr("width", 600)
+        .attr("height", 600);
+
+    svg.selectAll("rect") // selecting stuff that doesnt exist yet
+      .data(dataset)
+       .enter().append("rect") // actually creates them
+      .attr("x", function(d,i) { return i * 40; })
+      .attr("y", 10)
+      .attr("width", 30)
+      .attr("height", function(d) { return d * 10; }) // height based of dataset value
+      .style("fill", function(d,i) { return colorScale(i); }); //color based off index
+    </script>
