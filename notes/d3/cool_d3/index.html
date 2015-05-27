@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>D3</title>
+    <script src="http://d3js.org/d3.v2.min.js?2.9.5"></script>
+    <script src="http://d3js.org/topojson.v0.min.js"></script>
+
+  </head>
+  <body>
+    <script type="text/javascript">
+
+      var dataset = [10,20,30,40];
+
+      var svg = d3.select("body").append("svg")
+      .attr("width",700)
+      .attr("height", 700);
+
+      var circles = svg.selectAll("circle");
+
+      circles.data(dataset)
+      .enter().append("circle")
+      .attr("r", function(d) { return d*2; })
+      .attr("cx", function(d,i) { return (i + 1) *100; } )
+      .attr("cy", function(d,i) { return (i + 1) *100; } )
+      .attr("fill", function(d) { if( d == '10' ) { return "red"; }
+                             else if( d == '20' ) { return "blue"; }
+                             else if( d == '30' ) { return "green"; }
+                             else if( d == '40' ) { return "orange"; }
+         })
+      .style("fill-opacity", .7)
+      .style("stroke-width",".2em")
+      .style("stroke",function(d) { if( d == '10' ) { return "red"; }
+                             else if( d == '20' ) { return "blue"; }
+                             else if( d == '30' ) { return "green"; }
+                             else if( d == '40' ) { return "orange"; }
+         });
+
+      var newdata = [30,10,20,40];
+
+      d3.select("svg").selectAll("circle")
+      .data(newdata)
+      .transition()
+      .duration(2000)
+      .ease("elastic")
+      .delay(200)
+      .attr("r", function(d) { return d*2; })
+      .attr("cx", function(d,i) { return (i + 1) *100; } )
+      .attr("cy", function(d,i) { return (i + 1) *100; } )
+      .attr("fill", function(d) { if( d == '10' ) { return "red"; }
+                             else if( d == '20' ) { return "blue"; }
+                             else if( d == '30' ) { return "green"; }
+                             else if( d == '40' ) { return "orange"; }
+         })
+      .style("fill-opacity", .7)
+      .style("stroke-width",".2em")
+      .style("stroke",function(d) { if( d == '10' ) { return "red"; }
+                             else if( d == '20' ) { return "blue"; }
+                             else if( d == '30' ) { return "green"; }
+                             else if( d == '40' ) { return "orange"; }
+         });
+
+      function somethingCool() {
+         d3.select(this)
+         .transition() //make it not happen instanlty
+         .duration(5000) //time it
+         .ease("elastic") //type of effect
+         .delay(100) //how long to wait
+           .style("fill", "yellow") //what you're actually changing
+           .style("stroke-width","0em"); //here too
+
+       }
+
+      function somethingElse() {
+        d3.select(this)
+        .data(newdata)
+           .transition()
+         .duration(5000)
+         .ease("elastic")
+         .delay(100)
+           .style("fill", "blue")
+           .style("stroke-width","0em")
+           .attr("");
+      }
+
+      d3.select("svg").selectAll("circle")
+      .on("mouseover",somethingCool)
+      .on("mouseleave",somethingElse)
+
+    </script>
+  </body>
+</html>

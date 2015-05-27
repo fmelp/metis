@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<!-- Made by Mike Bostock
+http://bl.ocks.org/mbostock/3887118
+-->
+<style>
+
+body {
+  /*tells it what font to use*/
+  font: 10px sans-serif;
+}
+
+/*these formats are the same everywhere for bostock, helps the setup*/
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+}
+
+div.mouseover{
+  position: absolute;
+  background: black;
+  background-color: rgba(0,0,0,0.5);
+  border: 1px solid #131313;
+  color: white;
+  padding: 5px 8px;
+  margin-left: 100px;
+  margin-top: 50px;
+  display: none;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<div class="mouseover"></div>
+<script>
+//setting the margins and what you want to view
+  var margin = {top: 20, right: 20, bottom: 30, left: 40},
+      width = 960 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
+
+  var x = d3.scale.linear() //doing linear() instead of identity() because it's real data and domain and range can be different
+      .range([0, width]); //doesnt specify domain bc it will be specific later w min and max of actual data
+      //range for physical space
+      //domain for data
+      // Why linear instead of identity, like we saw before?
+  var y = d3.scale.linear()
+      .range([height, 0]);
+
+  var color = d3.scale.category10();
+
+  var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom");
+                    //these two same as previous axis file
+  var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left");
+
+  var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g") //add a g to translate
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")"); //translate w g by margins
+
+  // What is this data function?
+d3.tsv("dataTwo.tsv", function(error, data) { //START// plotting the data
+
+  // What's this = + for?
+  data.forEach(function(d) {
+    d.sepalLength = +d.sepalLength; // + turns this into a positive integer
+    d.sepalWidth = +d.sepalWidth;   //not really necessary
+  });
+
+  x.domain(d3.extent(data, function(d) { return d.sepalWidth; })).nice(); //start setting domain w the data
+  y.domain(d3.extent(data, function(d) { return d.sepalLength; })).nice(); //same here for the y -> nice() -> rounds it up
+
+  // What's that extent function?
+  // What's that nice function?
+
+  // What's he doing here?
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")") //shifting the axis down
+      .call(xAxis)
+    .append("text") //labels the axis
+      .attr("class", "label")
+      .attr("x", width)
+      .attr("y", -6)
+      .style("text-anchor", "end") //where to put it
+      .text("Sepal Width (cm)"); //actual text
+
+  svg.append("g") //doing same for y axis
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Sepal Length (cm)")
+
+  // What's all this?
+  svg.selectAll(".dot") //. is selecting a class
+      .data(data) // using the data to make our circles
+    .enter().append("circle")
+      .attr("class", "dot") //actually creates the class
+      .attr("r", 3.5) //sizing the circle
+      //translates the domain (actual value) to the range (svg proportional values)
+      .attr("cx", function(d) { return x(d.sepalWidth); }) //applying the scale to the data value
+      .attr("cy", function(d) { return y(d.sepalLength); }) //otherwise it would put them all in the coordinates of the values
+      .style("fill", function(d) { return color(d.species); }); //calls color on the different species (only 3)
+
+  // What's going on this with this color domain?
+
+  // What's going on here?
+  var legend = svg.selectAll(".legend") //creating a legend, need to make it explicit
+      .data(color.domain()) //based on domain of color, only 3 types of species
+    .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; }); //put it in the right spot, use the 'data' (how many species) so they're one under the other
+
+  legend.append("rect") //specift what you want in there
+      .attr("x", width - 18)
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", color);
+
+  legend.append("text") //puts the text next to it
+      .attr("x", width - 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return d; });
+
+//uncomment to allow changing color when mouse hovering
+  // svg.selectAll(".dot")
+  // .on("mouseover",somethingCool)
+  // .on("mouseleave",somethingElse)
+
+}); //END /// plotting the data
+
+  function somethingCool() {
+     d3.select(this)
+     .transition()
+     .duration(5000)
+     .ease("elastic")
+     .delay(100)
+       .style("fill", "yellow")
+       .style("stroke-width","0em");
+
+   }
+
+  function somethingElse() {
+    d3.select(this)
+       .transition()
+     .duration(5000)
+     .ease("elastic")
+     .delay(100)
+       .style("fill", "blue")
+       .style("stroke-width","0em");
+  }
+
+
+
+</script>

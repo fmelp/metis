@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<!-- Made by Mike Bostock
+http://bl.ocks.org/mbostock/3887118
+-->
+<style>
+
+body {
+  /*tells it what font to use*/
+  font: 10px sans-serif;
+}
+
+/*these formats are the same everywhere for bostock, helps the setup*/
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+}
+
+
+div.mouseover{
+  position: absolute;
+  background: black;
+  background-color: rgba(0,0,0,0.5);
+  border: 1px solid #131313;
+  color: white;
+  padding: 5px 8px;
+  margin-left: 100px;
+  margin-top: 100px;
+  display: none;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+<div class="mouseover"></div>
+<script>
+//setting the margins and what you want to view
+  var margin = {top: 20, right: 100, bottom: 30, left: 100},
+      width = 1250 - margin.left - margin.right,
+      height = 700 - margin.top - margin.bottom;
+
+  var x = d3.scale.linear() //doing linear() instead of identity() because it's real data and domain and range can be different
+      .range([0, width]); //doesnt specify domain bc it will be specific later w min and max of actual data
+      //range for physical space
+      //domain for data
+      // Why linear instead of identity, like we saw before?
+  var y = d3.scale.linear()
+      .range([height, 0]);
+
+  var r = d3.scale.linear()
+      .range([0,15])
+
+  var drag = d3.behavior.drag()
+          .on("drag",function(d){dragging(d);});
+
+  var color = d3.scale.category20();
+
+  var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom");
+                    //these two same as previous axis file
+  var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left");
+
+  // var parseDate = d3.time.format("%B%d,%Y").parse();
+
+  var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g") //add a g to translate
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")"); //translate w g by margins
+
+  // What is this data function?
+d3.csv("movie_data.csv", function(error, data) { //START// plotting the data
+
+  // What's this = + for?
+  // data.forEach(function(d) {
+  //   d.sepalLength = +d.sepalLength; // + turns this into a positive integer
+  //   d.sepalWidth = +d.sepalWidth;   //not really necessary
+  // });
+
+  data.forEach(function(d){
+    // d.release_date = parseDate(d.rank_history);
+    d.domestic_total_gross = +d.domestic_total_gross;
+    d.runtime = +d.runtime;
+    if (d.runtime < 60){
+        // d.runtime = d.runtime + 30;
+        d.runtime = 0
+    }
+    d.rt_critics = +d.rt_critics
+    if (d.genre == 'nan'){
+      d.genre = 'Unknown';
+    }
+  });
+
+
+  // x.domain(d3.extent(data, function(d) { return d.runtime; })).nice(); //start setting domain w the data
+  x.domain([65,230])
+  y.domain(d3.extent(data, function(d) { return d.domestic_total_gross; })).nice(); //same here for the y -> nice() -> rounds it up
+
+  // What's that extent function?
+  // What's that nice function?
+
+  // What's he doing here?
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")") //shifting the axis down
+      .call(xAxis)
+    .append("text") //labels the axis
+      .attr("class", "label")
+      .attr("x", width)
+      .attr("y", -6)
+      .style("text-anchor", "middle")
+      // .attr("transform", "translate("+ (width/2) +","+(height-(margin.bottom/3))+")") //where to put it
+      .attr("transform", "translate(-500, 30)")
+      .text("Runtime (mins)"); //actual text
+
+  svg.append("g") //doing same for y axis
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Domestic Total Gross ($)")
+
+  // What's all this?
+  svg.selectAll(".dot") //. is selecting a class
+      .data(data) // using the data to make our circles
+    .enter().append("circle")
+      .attr("class", "dot") //actually creates the class
+      .attr("r", function(d) { return d.rt_critics/10}) //sizing the circle
+      //translates the domain (actual value) to the range (svg proportional values)
+      .attr("cx", function(d) { return x(d.runtime); }) //applying the scale to the data value
+      .attr("cy", function(d) { return y(d.domestic_total_gross); }) //otherwise it would put them all in the coordinates of the values
+      .style("fill", function(d) { return color(d.genre); })
+      .style("fill-opacity", .3); //calls color on the different species (only 3)
+
+  // What's going on this with this color domain?
+
+  // What's going on here?
+  var legend = svg.selectAll(".legend") //creating a legend, need to make it explicit
+      .data(color.domain()) //based on domain of color, only 3 types of species
+    .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(100," + i * 20 + ")"; }); //put it in the right spot, use the 'data' (how many species) so they're one under the other
+
+  legend.append("rect") //specift what you want in there
+      .attr("x", width - 18)
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", color)
+      .style("fill-opacity", .3);
+
+  // legend.append("circle")
+  //   .attr("x", width - 18)
+  //   .attr("width", 18)
+  //   .attr("height", 18)
+  //   .style("fill", black)
+  //   .append("text").text("Size is Rotten Tomatoes Rating")
+
+  legend.append("text") //puts the text next to it
+      .attr("x", width - 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return d; });
+
+  var randomLabel = svg.selectAll(".randomLabel")
+      .data(color.domain())
+      .enter().append("g")
+      .attr("class", "randomLabel")
+      .attr("transform", "translate(50, 50)");
+
+  randomLabel.append("text")
+      .attr("x", 610)
+      .attr("y", 10)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text("NOTE: Circle size is proportional to rotten tomatoes rating")
+
+  svg.selectAll(".dot")
+    .on("mouseover", mouseover)
+    .on("mouseout", mouseout)
+
+  // svg.selectAll(".dot")
+  // .on("mouseover",somethingCool)
+  // .on("mouseleave",somethingElse)
+
+  // function somethingElse() {
+  //   d3.select(this)
+  //      .transition()
+  //    .duration(5000)
+  //    .ease("elastic")
+  //    .delay(100)
+  //    .data(data)
+  //    .style("fill", function(d) { return color(d.genre); })
+  // }
+
+}); //END /// plotting the data
+
+    function mouseover(d){
+      var text="TITLE: "+d.movie_title + "\n <=> RT RATING: "+ d.rt_critics + "%";
+      // var text2="Area Name: "+d.properties["PO_NAME"];
+      // you can add any more information to the mouseover
+      // here, using data in your JSON
+      $(".mouseover").html(text);
+      // $(".mouseover").html(text, text2);
+      $(".mouseover").css("display","inline");
+    }
+
+    function mouseout(){
+        d3.select('.dot').remove();
+
+      $(".mouseover").text("");
+      $(".mouseover").css("display","none");
+    }
+
+    // moves the mouseover box whenever the mouse is moved.
+    d3.select('html') // Selects the 'html' element
+      .on('mousemove', function()
+        {
+        var locs=d3.mouse(this);  // get the mouse coordinates
+
+        // add some padding
+        locs[0]+=15;
+        locs[1]+=5;
+
+        $("div.mouseover").css("margin-left",locs[0]);
+        $("div.mouseover").css("margin-top",locs[1]);
+        });
+
+
+
+
+
+</script>
